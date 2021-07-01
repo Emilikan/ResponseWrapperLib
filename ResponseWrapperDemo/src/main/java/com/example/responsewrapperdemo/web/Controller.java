@@ -23,8 +23,8 @@ public class Controller {
     }
 
     @GetMapping("/collection")
-    public List<MainModel> testList() {
-        List<MainModel> mainModels = new ArrayList<>();
+    public Collection<MainModel> testList() {
+        Collection<MainModel> mainModels = new ArrayList<>();
         mainModels.add(new MainModel("Name1", "Surname1"));
         mainModels.add(new MainModel("Name2", "Surname2"));
 
