@@ -1,32 +1,33 @@
 package com.example.responsewrapperdemo.web;
 
 import com.example.responsewrapperdemo.model.MainModel;
+import com.example.responsewrapperdemo.web.context.ControllerTestConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @author Emil Nasyrov (Emilikan)
  */
 
 @WebMvcTest(controllers = Controller.class)
-public class ControllerTest {
-    private final String BASE_ENDPOINT = "/test";
+@ContextConfiguration(classes = ControllerTestConfiguration.class)
+public class Controller2Test {
+    private final String BASE_ENDPOINT = "/test2";
 
     @Autowired
     private MockMvc mvc;

@@ -1,32 +1,35 @@
-package com.example.responsewrapperdemo.web;
+package com.example.responsewrapperdemo.lib;
 
+import com.example.responsewrapperdemo.lib.context.ControllerTestConfiguration;
 import com.example.responsewrapperdemo.model.MainModel;
+import com.example.responsewrapperdemo.model.Passport;
+import com.example.responsewrapperdemo.model.Wrapper;
+import com.example.responsewrapperdemo.model.Wrapper2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @author Emil Nasyrov (Emilikan)
  */
 
-@WebMvcTest(controllers = Controller.class)
-public class ControllerTest {
-    private final String BASE_ENDPOINT = "/test";
+@AutoConfigureMockMvc
+@SpringBootTest(classes = ControllerTestConfiguration.class)
+public class Controller2WithLibTest {
+    private final String BASE_ENDPOINT = "/test2";
 
     @Autowired
     private MockMvc mvc;
@@ -36,7 +39,8 @@ public class ControllerTest {
 
     @Test
     public void test() throws Exception {
-        final String result = objectMapper.writeValueAsString(new MainModel("Name", "Surname"));
+        final Wrapper2 wrapper = new Wrapper2(new MainModel("Name", "Surname"), new Passport("series", "number"));
+        final String result = objectMapper.writeValueAsString(wrapper);
 
         mvc.perform(
                 get(BASE_ENDPOINT)
@@ -49,11 +53,11 @@ public class ControllerTest {
 
     @Test
     public void testList() throws Exception {
-        final Collection<MainModel> mainModels = new ArrayList<>();
-        mainModels.add(new MainModel("Name1", "Surname1"));
-        mainModels.add(new MainModel("Name2", "Surname2"));
+        final Wrapper2 wrapper1 = new Wrapper2(new MainModel("Name1", "Surname1"), new Passport("series", "number"));
+        final Wrapper2 wrapper2 = new Wrapper2(new MainModel("Name2", "Surname2"), new Passport("series", "number"));
 
-        final String result = objectMapper.writeValueAsString(mainModels);
+        final List<Wrapper2> wrapperList = List.of(wrapper1, wrapper2);
+        final String result = objectMapper.writeValueAsString(wrapperList);
 
         mvc.perform(
                 get(BASE_ENDPOINT + "/collection")
@@ -61,7 +65,7 @@ public class ControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(status().isOk()).andExpect(content().string(equalTo(result)));
+                .andExpect(content().string(equalTo(result)));
     }
 
     @Test

@@ -6,7 +6,9 @@ import com.google.common.base.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import ru.emilnasyrov.lib.response.wrapper.IWrapperModel;
+import ru.emilnasyrov.lib.response.wrapper.MethodInformation;
 
 /**
  * Модель-обертка <p>
@@ -17,20 +19,20 @@ import ru.emilnasyrov.lib.response.wrapper.IWrapperModel;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Wrapper implements IWrapperModel {
+public class Wrapper implements IWrapperModel<MainModel, String> {
     @JsonUnwrapped
-    Object main;
+    MainModel main;
 
     String someInfo;
 
     @Override
-    public void setData(Object object) {
-        someInfo = object.toString();
+    public void setBody(@NonNull MainModel body, @NonNull MethodInformation methodInformation) {
+        main = body;
     }
 
     @Override
-    public void setBody(Object object) {
-        main = object;
+    public void setData(String data, @NonNull MethodInformation methodInformation) {
+        someInfo = data;
     }
 
     @Override

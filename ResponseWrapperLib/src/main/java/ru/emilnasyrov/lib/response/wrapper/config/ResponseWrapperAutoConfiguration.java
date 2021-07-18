@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import ru.emilnasyrov.lib.response.wrapper.IWrapperService;
 import ru.emilnasyrov.lib.response.wrapper.advice.ResponseWrapperAdvice;
 
+import java.util.List;
 
 /**
  * Задаем автоконфигурацию бина. Часть настройки стартера <p>
@@ -19,11 +20,11 @@ import ru.emilnasyrov.lib.response.wrapper.advice.ResponseWrapperAdvice;
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
 @AllArgsConstructor
 public class ResponseWrapperAutoConfiguration {
-    private final IWrapperService wrapperService;
+    private final List<IWrapperService<?, ?>> wrapperServiceList;
 
     @Bean
     @ConditionalOnMissingBean
     public ResponseWrapperAdvice responseWrapperAdvice() {
-        return new ResponseWrapperAdvice(wrapperService);
+        return new ResponseWrapperAdvice(wrapperServiceList);
     }
 }

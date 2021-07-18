@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
  *
  * @author Emil Nasyrov (Emilikan)
  */
-
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DisableResponseWrapper {

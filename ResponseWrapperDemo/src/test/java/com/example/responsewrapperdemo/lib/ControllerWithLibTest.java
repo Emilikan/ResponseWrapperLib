@@ -1,5 +1,6 @@
 package com.example.responsewrapperdemo.lib;
 
+import com.example.responsewrapperdemo.lib.context.ControllerTestConfiguration;
 import com.example.responsewrapperdemo.model.MainModel;
 import com.example.responsewrapperdemo.model.Wrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 
 @AutoConfigureMockMvc
-@SpringBootTest
+@SpringBootTest(classes = ControllerTestConfiguration.class)
 public class ControllerWithLibTest {
     private final String BASE_ENDPOINT = "/test";
 

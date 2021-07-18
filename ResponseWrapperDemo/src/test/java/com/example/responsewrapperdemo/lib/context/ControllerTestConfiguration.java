@@ -1,4 +1,4 @@
-package com.example.responsewrapperdemo.web.context;
+package com.example.responsewrapperdemo.lib.context;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-@ComponentScan(value = "com.example.responsewrapperdemo.web", lazyInit = true)
+@ComponentScan(value = "com.example.responsewrapperdemo", lazyInit = true)
 public class ControllerTestConfiguration {
 
 }

@@ -9,8 +9,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Аннотация заменяет собой {@link RestController}.
- * <br/> <br/>
+ * Аннотация заменяет собой {@link RestController}. <p>
+ *
  * Пометить класс-контроллер для того, чтобы ответы всех его rest методов, отдающих Object
  * были обернуты в класс-обертку (В случае если отдается Collection - будут обернуты все элементы коллекции)
  * на уровне DispatcherServlet <br/>
@@ -26,5 +26,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnableResponseWrapper {
-    Class<? extends IWrapperModel> wrapperClass();
+    Class<? extends IWrapperModel<?, ?>> wrapperClass();
 }

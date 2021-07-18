@@ -2,6 +2,7 @@ package com.example.responsewrapperdemo.service;
 
 import com.example.responsewrapperdemo.service.context.ControllerTestConfiguration;
 import com.example.responsewrapperdemo.model.MainModel;
+import com.example.responsewrapperdemo.model.Passport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 
 @SpringBootTest(classes = ControllerTestConfiguration.class)
-public class WrapperServiceTest {
+public class Wrapper2ServiceTest {
     @Autowired
-    WrapperServiceImpl wrapperService;
+    Wrapper2ServiceImpl wrapperService;
 
     @Test
     public void getDataTest() {
-        assertEquals(wrapperService.getData(new MainModel("name", "surname")), "Additional Information");
+        assertEquals(wrapperService.getData(new MainModel("name", "surname")), new Passport("series", "number"));
     }
 }

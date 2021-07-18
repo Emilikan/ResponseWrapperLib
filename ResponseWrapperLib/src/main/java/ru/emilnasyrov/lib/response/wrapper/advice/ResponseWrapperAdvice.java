@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import ru.emilnasyrov.lib.response.wrapper.IWrapperModel;
 import ru.emilnasyrov.lib.response.wrapper.IWrapperService;
+import ru.emilnasyrov.lib.response.wrapper.MethodInformation;
 import ru.emilnasyrov.lib.response.wrapper.annotation.DisableResponseWrapper;
 import ru.emilnasyrov.lib.response.wrapper.annotation.EnableResponseWrapper;
+import ru.emilnasyrov.lib.response.wrapper.annotation.WrapperService;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -26,7 +28,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @ControllerAdvice(annotations = EnableResponseWrapper.class)
 public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
-    private final IWrapperService wrapperService;
+
+    private final List<IWrapperService<?, ?>> wrapperServiceList;
 
     /**
      * Метод не будет обработан, если помечен аннотацией {@link DisableResponseWrapper} <br/> <br/>
@@ -60,6 +63,7 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
      */
     @SneakyThrows
     @Override
+    @Nullable
     public Object beforeBodyWrite(
             @Nullable Object body,
             @NonNull MethodParameter returnType,
@@ -68,12 +72,14 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
             @NonNull ServerHttpRequest request,
             @NonNull ServerHttpResponse response
     ) {
+        MethodInformation methodInformation = new MethodInformation(returnType, selectedContentType, selectedConverterType, request, response);
+
         if (body == null) {
             return null;
         }
 
         // получаем wrapperClass из аннотации
-        Class<? extends IWrapperModel> wrapperClass = null;
+        Class<? extends IWrapperModel<?, ?>> wrapperClass = null;
         for (Annotation annotation : returnType.getContainingClass().getAnnotations()) {
             if (annotation.annotationType() == EnableResponseWrapper.class) {
                 wrapperClass = ((EnableResponseWrapper) annotation).wrapperClass();
@@ -89,20 +95,18 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
         if (Collection.class.isAssignableFrom(body.getClass())) {
             try {
                 Collection<?> bodyCollection = (Collection<?>) body;
-
                 // проверяем, что collection не пустой
                 if (bodyCollection.isEmpty()) {
                     return body;
                 }
                 // оборачиваем каждый элемент коллекции
-                return generateListOfResponseWrapper(bodyCollection, wrapperClass);
+                return generateListOfResponseWrapper(bodyCollection, wrapperClass, methodInformation);
             } catch (Exception e) {
                 return body;
             }
         }
-
         // если не collection
-        return generateResponseWrapper(body, wrapperClass);
+        return generateResponseWrapper(body, wrapperClass, methodInformation);
     }
 
     /**
@@ -112,11 +116,16 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
      * @param wrapperClass   объект обертки
      * @return список оберток
      */
-    private List<Object> generateListOfResponseWrapper(Collection<?> bodyCollection, Class<? extends IWrapperModel> wrapperClass) {
+    @NonNull
+    private List<Object> generateListOfResponseWrapper(
+            @NonNull Collection<?> bodyCollection,
+            @NonNull Class<? extends IWrapperModel<?, ?>> wrapperClass,
+            @NonNull MethodInformation methodInformation
+    ) {
         return bodyCollection.stream()
                 .map((t) -> t == null ?
                         null :
-                        generateResponseWrapper(t, wrapperClass)
+                        generateResponseWrapper(t, wrapperClass, methodInformation)
                 )
                 .collect(Collectors.toList());
     }
@@ -128,13 +137,48 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
      * @param wrapperClass объект обертки
      * @return обертка
      */
+    @NonNull
     @SneakyThrows
-    private IWrapperModel generateResponseWrapper(Object body, Class<? extends IWrapperModel> wrapperClass) {
+    private IWrapperModel<?, ?> generateResponseWrapper(
+            @NonNull Object body,
+            @NonNull Class<? extends IWrapperModel<?, ?>> wrapperClass,
+            @NonNull MethodInformation methodInformation
+    ) {
         // wrapperClass должен иметь конструктор без параметров - получаем объект IWrapperModel
-        IWrapperModel wrapper = wrapperClass.getDeclaredConstructor().newInstance();
-        wrapper.setBody(body);
-        wrapper.setData(wrapperService.getData(body));
+        IWrapperModel<?, ?> wrapper = wrapperClass.getDeclaredConstructor().newInstance();
+        wrapper.setBodyHelper(body, methodInformation);
+        wrapper.setDataHelper(getWrapperService(wrapperClass).getDataHelper(body), methodInformation);
         return wrapper;
+    }
+
+    /**
+     * Получаем нужный сервис для конкретной обертки
+     *
+     * @param wrapperClass обертка, для которой необходимо найти сервис
+     * @return сервис для обертки
+     * @throws RuntimeException в коде присутствует обертка без сервиса
+     */
+    @NonNull
+    private IWrapperService<?, ?> getWrapperService(
+            @NonNull Class<? extends IWrapperModel<?, ?>> wrapperClass
+    ) {
+        IWrapperService<?, ?> wrapperService = null;
+
+        for (IWrapperService<?, ?> iWrapperService : wrapperServiceList) {
+            for (Annotation annotation : iWrapperService.getClass().getAnnotations()) {
+                if (annotation.annotationType() == WrapperService.class &&
+                        ((WrapperService) annotation).wrapperModel()==wrapperClass
+                ){
+                    wrapperService = iWrapperService;
+                    break;
+                }
+            }
+        }
+
+        if (wrapperService==null) {
+            throw new RuntimeException("Обертка без сервиса");
+        }
+        return wrapperService;
     }
 
 }

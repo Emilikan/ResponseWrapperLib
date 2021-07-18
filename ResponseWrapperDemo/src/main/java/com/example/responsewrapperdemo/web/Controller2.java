@@ -1,26 +1,27 @@
 package com.example.responsewrapperdemo.web;
 
 import com.example.responsewrapperdemo.model.MainModel;
-import com.example.responsewrapperdemo.model.Wrapper;
+import com.example.responsewrapperdemo.model.Wrapper2;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.emilnasyrov.lib.response.wrapper.annotation.DisableResponseWrapper;
 import ru.emilnasyrov.lib.response.wrapper.annotation.EnableResponseWrapper;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author Emil Nasyrov (Emilikan)
  */
 
-@EnableResponseWrapper(wrapperClass = Wrapper.class)
-@RequestMapping("/test")
-public class Controller {
+@EnableResponseWrapper(wrapperClass = Wrapper2.class)
+@RequestMapping("/test2")
+public class Controller2 {
 
     @PostConstruct
     public void init() {
-        System.out.println("1");
+        System.out.println("2");
     }
 
     @GetMapping
