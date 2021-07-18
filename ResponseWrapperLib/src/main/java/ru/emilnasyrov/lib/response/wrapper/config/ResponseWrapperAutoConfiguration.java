@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import ru.emilnasyrov.lib.response.wrapper.advice.ResponseWrapperAdvice;
-import ru.emilnasyrov.lib.response.wrapper.bpp.ResponseWrapperBeanPostProcessor;
+import ru.emilnasyrov.lib.response.wrapper.bpp.InjectWrapperServiceMapBeanPostProcessor;
 
 /**
  * Задаем автоконфигурацию бина. Часть настройки стартера <p>
@@ -34,7 +34,7 @@ public class ResponseWrapperAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ResponseWrapperBeanPostProcessor responseWrapperBeanPostProcessor() {
-        return new ResponseWrapperBeanPostProcessor(applicationContext);
+    public InjectWrapperServiceMapBeanPostProcessor responseWrapperBeanPostProcessor() {
+        return new InjectWrapperServiceMapBeanPostProcessor(applicationContext);
     }
 }

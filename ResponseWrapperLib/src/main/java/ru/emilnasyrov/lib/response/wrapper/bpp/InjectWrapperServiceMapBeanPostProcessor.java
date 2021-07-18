@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
-public class ResponseWrapperBeanPostProcessor implements BeanPostProcessor {
+public class InjectWrapperServiceMapBeanPostProcessor implements BeanPostProcessor {
 
     private final ApplicationContext applicationContext;
 
