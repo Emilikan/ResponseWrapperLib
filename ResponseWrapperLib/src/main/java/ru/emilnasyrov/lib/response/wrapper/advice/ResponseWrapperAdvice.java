@@ -1,8 +1,6 @@
 package ru.emilnasyrov.lib.response.wrapper.advice;
 
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
@@ -15,7 +13,7 @@ import ru.emilnasyrov.lib.response.wrapper.IWrapperService;
 import ru.emilnasyrov.lib.response.wrapper.MethodInformation;
 import ru.emilnasyrov.lib.response.wrapper.annotation.DisableResponseWrapper;
 import ru.emilnasyrov.lib.response.wrapper.annotation.EnableResponseWrapper;
-import ru.emilnasyrov.lib.response.wrapper.annotation.WrapperService;
+import ru.emilnasyrov.lib.response.wrapper.annotation.InjectWrapperServiceMap;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -25,11 +23,16 @@ import java.util.stream.Collectors;
  * @author Emil Nasyrov (Emilikan)
  */
 
-@AllArgsConstructor
+@NoArgsConstructor
 @ControllerAdvice(annotations = EnableResponseWrapper.class)
 public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
 
-    private final List<IWrapperService<?, ?>> wrapperServiceList;
+    private Map<Class<? extends IWrapperModel<?, ?>>, IWrapperService<?, ?>> wrapperServiceMap;
+
+    @InjectWrapperServiceMap
+    public void setWrapperServiceMap(Map<Class<? extends IWrapperModel<?, ?>>, IWrapperService<?, ?>> wrapperServiceMap) {
+        this.wrapperServiceMap = wrapperServiceMap;
+    }
 
     /**
      * Метод не будет обработан, если помечен аннотацией {@link DisableResponseWrapper} <br/> <br/>
@@ -147,38 +150,8 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
         // wrapperClass должен иметь конструктор без параметров - получаем объект IWrapperModel
         IWrapperModel<?, ?> wrapper = wrapperClass.getDeclaredConstructor().newInstance();
         wrapper.setBodyHelper(body, methodInformation);
-        wrapper.setDataHelper(getWrapperService(wrapperClass).getDataHelper(body), methodInformation);
+        wrapper.setDataHelper(wrapperServiceMap.get(wrapperClass).getDataHelper(body), methodInformation);
         return wrapper;
-    }
-
-    /**
-     * Получаем нужный сервис для конкретной обертки
-     *
-     * @param wrapperClass обертка, для которой необходимо найти сервис
-     * @return сервис для обертки
-     * @throws RuntimeException в коде присутствует обертка без сервиса
-     */
-    @NonNull
-    private IWrapperService<?, ?> getWrapperService(
-            @NonNull Class<? extends IWrapperModel<?, ?>> wrapperClass
-    ) {
-        IWrapperService<?, ?> wrapperService = null;
-
-        for (IWrapperService<?, ?> iWrapperService : wrapperServiceList) {
-            for (Annotation annotation : iWrapperService.getClass().getAnnotations()) {
-                if (annotation.annotationType() == WrapperService.class &&
-                        ((WrapperService) annotation).wrapperModel()==wrapperClass
-                ){
-                    wrapperService = iWrapperService;
-                    break;
-                }
-            }
-        }
-
-        if (wrapperService==null) {
-            throw new RuntimeException("Обертка без сервиса");
-        }
-        return wrapperService;
     }
 
 }

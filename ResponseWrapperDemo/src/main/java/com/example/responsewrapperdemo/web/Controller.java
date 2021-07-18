@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ru.emilnasyrov.lib.response.wrapper.annotation.DisableResponseWrapper;
 import ru.emilnasyrov.lib.response.wrapper.annotation.EnableResponseWrapper;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
@@ -17,11 +16,6 @@ import java.util.*;
 @EnableResponseWrapper(wrapperClass = Wrapper.class)
 @RequestMapping("/test")
 public class Controller {
-
-    @PostConstruct
-    public void init() {
-        System.out.println("1");
-    }
 
     @GetMapping
     public MainModel test() {

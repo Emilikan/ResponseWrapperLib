@@ -6,8 +6,6 @@ import lombok.NonNull;
 import ru.emilnasyrov.lib.response.wrapper.IWrapperService;
 import ru.emilnasyrov.lib.response.wrapper.annotation.WrapperService;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Сервис, отдающий дополнительные данные, которыми наполнится модель-обертка <p>
  *
@@ -16,11 +14,6 @@ import javax.annotation.PostConstruct;
 
 @WrapperService(wrapperModel = Wrapper.class)
 public class WrapperServiceImpl implements IWrapperService<MainModel, String> {
-
-    @PostConstruct
-    public void init() {
-        System.out.println("3");
-    }
 
     @Override
     public String getData(@NonNull MainModel body) {
